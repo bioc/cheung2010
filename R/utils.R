@@ -20,9 +20,9 @@ dotrans = function(spack, snpchr="chr1", K=20, rhs=~sex,
    genechr=1:22) {
  cs = getSS(spack, snpchr)
  require(annotation(cs), character.only=TRUE)
- cenv = get(paste(gsub(".db", "", annotation(cs)), "CHR"))
+ cenv = get(paste(gsub(".db", "", annotation(cs)), "CHR", sep=""))
  chtok = gsub("chr", "", snpchr)
- gspl = mget(as.character(genechr), revmap(cenv))
+ gspl = AnnotationDbi:::mget(as.character(genechr), revmap(cenv))
  if (length(gspl)<2) stop("need genechr length at least 2")
  allg = featureNames(cs)
  indset = lapply(gspl, function(x) match(x, allg))

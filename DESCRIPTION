@@ -6,7 +6,8 @@ Description: Data resources related to the PLoS Biology paper Polymorphic
 	Cis- and Trans-Regulation of Human Gene 
 	Expression, including small-footprint smlSet support for 147 hgfocus
 	arrays and corresponding HapMap genotypes at 1.3 million SNP
-Depends: R (>= 2.13.0), Biobase, GGtools, GenomicRanges
+Depends: R (>= 2.13.0), Biobase, GGtools, GenomicRanges, hgfocus.db
+Imports: AnnotationDbi
 Maintainer: Vince Carey <stvjc@channing.harvard.edu>
 License: private
 LazyLoad: yes
