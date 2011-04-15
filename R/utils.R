@@ -2,7 +2,7 @@
 topKfeats = function(mgr, K, fn="inds1.ff", batchsize=200,
    feat = c("score", "ind", "geneind"), ffind=1, ginds) {
      intests = mgr@fflist[[ffind]]
-     if (feat == "score") op = function(x)sort(x, decreasing=TRUE)[1:K]
+     if (feat == "score") op = function(x)sort(x, decreasing=TRUE, na.last=NA)[1:K]
      else if (feat == "ind") op = function(x)order(x, decreasing=TRUE,na.last=NA)[1:K]
      else if (feat == "geneind") op = function(x)ginds[
                                         order(x,decreasing=TRUE,na.last=NA)[1:K]]
