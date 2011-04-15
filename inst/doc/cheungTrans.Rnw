@@ -1,0 +1,65 @@
+
+%
+% NOTE -- ONLY EDIT THE .Rnw FILE!!!  The .tex file is
+% likely to be overwritten.
+%
+
+%\VignetteIndexEntry{}
+%\VignetteDepends{}
+%\VignetteKeywords{}
+%\VignettePackage{}
+
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,pstricks}
+\usepackage[authoryear,round]{natbib}
+\usepackage{hyperref}
+
+
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+
+\textwidth=6.2in
+
+\bibliographystyle{plainnat} 
+ 
+\begin{document}
+%\setkeys{Gin}{width=0.55\textwidth}
+
+\title{Finding trans eQTL in the Cheung data}
+\author{VJ Carey}
+\maketitle
+
+<<getl>>=
+library(cheung2010)
+library(hgfocus.db)
+gspl = mget(as.character(1:22), revmap(hgfocusCHR))
+c1s = getSS("cheung2010", "chr1")
+library(multicore)
+c1t = eqtlTests( c1s[probeId(gspl[["1"]]),], ~sex, targdir="foo", geneApply=mclapply )
+save(c1t,file="c1t.rda")
+@
+
+
+ref = c1t@fflist[[1]]
+top3inds = ffrowapply( 
+   t(apply(ref[i1:i2,],1,function(x)order(x,decreasing=TRUE)[1:3])), 
+   X=ref, RETURN=TRUE, RETCOL=3, BATCHSIZE=200)
+
+
+\end{document}
