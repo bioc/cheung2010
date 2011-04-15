@@ -51,15 +51,22 @@ library(hgfocus.db)
 gspl = mget(as.character(1:22), revmap(hgfocusCHR))
 c1s = getSS("cheung2010", "chr1")
 library(multicore)
-c1t = eqtlTests( c1s[probeId(gspl[["1"]]),], ~sex, targdir="foo", geneApply=mclapply )
+if (!exists("c1t")) {
+if (!file.exists("c1t.rda")) {
+c1t = eqtlTests( c1s[probeId(gspl[["1"]]),], ~sex, targdir="foo", 
+      geneApply=mclapply )
 save(c1t,file="c1t.rda")
+      } else load("c1t.rda") 
+    }
 @
 
 
+<<d2>>=
 ref = c1t@fflist[[1]]
 top3inds = ffrowapply( 
    t(apply(ref[i1:i2,],1,function(x)order(x,decreasing=TRUE)[1:3])), 
    X=ref, RETURN=TRUE, RETCOL=3, BATCHSIZE=200)
+@
 
 
 \end{document}
