@@ -2,10 +2,10 @@
 topKfeats = function(mgr, K, fn="inds1.ff", batchsize=200,
    feat = c("score", "ind", "geneind"), ffind=1, ginds) {
      intests = mgr@fflist[[ffind]]
-     if (feat == "score") op = function(x)sort(x, decreasing=TRUE, na.last=NA)[1:K]
-     else if (feat == "ind") op = function(x)order(x, decreasing=TRUE,na.last=NA)[1:K]
+     if (feat == "score") op = function(x)sort(x, decreasing=TRUE)[1:K]
+     else if (feat == "ind") op = function(x)order(x, decreasing=TRUE)[1:K]
      else if (feat == "geneind") op = function(x)ginds[
-                                        order(x,decreasing=TRUE,na.last=NA)[1:K]]
+                                        order(x,decreasing=TRUE)[1:K]]
      else stop("feat not recognized")
      tmp = ffrowapply(
        t(apply(intests[i1:i2,],1,op)),
@@ -45,7 +45,8 @@ dotrans = function(spack, snpchr="chr1", K=20, rhs=~sex,
      incrscores = topKfeats( run1, K, fn=paste(trprefix, "incrscores.ff", sep=""), feat="score",
         ginds = indset[[i]] )
      updateKfeats( basescores, incrscores, baseinds, incrinds, batchsize=batchsize )
-     system("rm -rf incrinds.ff")
+     system(paste("rm -rf ", trprefix, "incrinds.ff", sep=""))
+     system(paste("rm -rf ", trprefix, "incrscores.ff", sep=""))
      system("rm -rf incrscores.ff")
      system(paste("rm -rf ", filename(nrun@fflist[[1]])))
      }
@@ -63,7 +64,7 @@ updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
       scos = cbind(sco1[i1:i2,], sco2[i1:i2,])
       ginds = cbind(ind1[i1:i2,], ind2[i1:i2,])
       rowwiseExtract = function(x,y) t(sapply(1:nrow(x), function(row) x[row,][y[row,]]))
-      chind = t(apply(scos, 1, function(x)order(x,decreasing=TRUE,na.last=NA)[1:K]))
+      chind = t(apply(scos, 1, function(x)order(x,decreasing=TRUE)[1:K]))
       sco1[i1:i2,] = rowwiseExtract( scos, chind )
       ind1[i1:i2,] = rowwiseExtract( ginds, chind )
       }
