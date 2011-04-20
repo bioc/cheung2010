@@ -69,6 +69,14 @@ c2t = eqtlTests( c1s[probeId(gspl[["2"]]),], ~sex, targdir="foo",
 save(c2t,file="c2t.rda")
       } else load("c2t.rda") 
     }
+if (!exists("c3t")) {
+if (!file.exists("c3t.rda")) {
+c3t = eqtlTests( c1s[probeId(gspl[["3"]]),], ~sex, targdir="foo", 
+      runname="c1_3",
+      geneApply=mclapply )
+save(c3t,file="c3t.rda")
+      } else load("c3t.rda") 
+    }
 @
 
 
@@ -98,6 +106,8 @@ top20inds_B = topKfeats( c2t, 20, fn="inds1_2.ff", feat="geneind", ginds=inds1 )
 date()
 top20scores_B = topKfeats( c2t, 20, fn="scores1_2.ff", feat="score", ginds=inds1 )
 date()
+top20inds_C = topKfeats( c3t, 20, fn="inds1_3.ff", feat="geneind", ginds=inds1 )
+top20scores_C = topKfeats( c3t, 20, fn="scores1_3.ff", feat="score", ginds=inds1 )
 @
 
 updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
@@ -111,9 +121,9 @@ updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
       scos = cbind(sco1[i1:i2,], sco2[i1:i2,])
       ginds = cbind(ind1[i1:i2,], ind2[i1:i2,])
       rowwiseExtract = function(x,y) t(sapply(1:nrow(x), function(row) x[row,][y[row,]]))
-      chind = t(apply(scos, 1, function(x)order(x,decreasing=TRUE)[1:K]))
-      sco1[i1:i2,] = rowwiseExtract( scos, chind )
-      ind1[i1:i2,] = rowwiseExtract( ginds, chind )
+      chind = t(apply(scos, 1, function(x)order(x,decreasing=TRUE)))
+      sco1[i1:i2,] = rowwiseExtract( scos, chind[,1:K] )
+      ind1[i1:i2,] = rowwiseExtract( ginds, chind[,1:K] )
       }
    NULL
 }
@@ -126,6 +136,11 @@ updateKfeats( top20scores, top20scores_B, top20inds, top20inds_B )
 date()
 top20scores[1:5,1:10]
 top20inds[1:5,1:10]
+updateKfeats( top20scores, top20scores_C, top20inds, top20inds_C )
+date()
+top20scores[1:5,1:10]
+top20inds[1:5,1:10]
+date()
 @
 
 
