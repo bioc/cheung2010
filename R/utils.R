@@ -71,3 +71,36 @@ updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
    invisible(NULL)
 }
 
+transScores = function(smpack, snpchr="chr1", rhs, K=20, targdir="tsco", geneApply=mclapply,
+   chrnames=as.character(1:22)) {
+ if (length(chrnames)<2) stop("must have length(chrnames) >= 2")
+ theCall = match.call()
+ require(GGtools)
+ sms = getSS(smpack, snpchr)
+ guniv = featureNames(sms)
+ smanno = gsub(".db", "", annotation(sms))
+ require(paste(smanno, ".db", sep=""), character.only=TRUE)
+ pnameList = mget(chrnames, revmap(get(paste(smanno, "CHR", sep=""))))
+ genemap = lapply( pnameList, function(x) match(x, guniv) )
+ nchr = length(chrnames)
+ inimgr = eqtlTests( sms[ probeId(pnameList[[chrnames[1]]]),], rhs,
+      targdir=targdir, runname=paste("tsc_", chrnames[1], sep=""), geneApply=geneApply,
+      saveSummaries=FALSE )
+ topKinds = topKfeats( inimgr, K=K, fn=paste(targdir, "/tsinds1_1.ff", sep=""), feat="geneind", ginds=genemap[[1]] )
+ topKscores = topKfeats( inimgr, K=K, fn=paste(targdir, "/tssco1_1.ff", sep=""), feat="score", ginds=genemap[[1]] )
+ unlink(filename(inimgr@fflist[[1]]))
+ for (j in 2:nchr) {  # get scores for same set of SNPs against a new set of genes (next chrom of genes)
+    cat(j)
+    nxtmgr = eqtlTests( sms[ probeId(pnameList[[chrnames[j]]]),], rhs,
+         targdir=targdir, runname=paste("tsctmp", j, sep=""), geneApply=geneApply, saveSummaries=FALSE )
+    nxtKinds = topKfeats( nxtmgr, K=K, fn=paste(targdir, "indscratch.ff", sep=""), feat="geneind", ginds=genemap[[j]] )
+    nxtKscores = topKfeats( nxtmgr, K=K, fn=paste(targdir, "scoscratch.ff", sep=""), feat="score", ginds=genemap[[j]] )
+    updateKfeats( topKscores, nxtKscores, topKinds, nxtKinds )
+    unlink(filename(nxtmgr@fflist[[1]]))
+    unlink(paste(targdir, "indscratch.ff", sep=""))
+    unlink(paste(targdir, "scoscratch.ff", sep=""))
+    }
+ list(scores=topKscores, inds=topKinds, guniv=guniv, snpnames=rownames(inimgr@fflist[[1]]),
+   call=theCall)
+}
+
