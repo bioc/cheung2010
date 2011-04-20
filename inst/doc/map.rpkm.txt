@@ -1,0 +1,10 @@
+
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424331/GSM424331%5FGM11831%5FRPKM%2Etxt%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424334/GSM424334%5FGM11881%2Emap%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424334/GSM424334%5FGM11881%5FRPKM%2Etxt%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424341/GSM424341%5FGM12005%2Emap%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424341/GSM424341%5FGM12005%5FRPKM%2Etxt%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424344/GSM424344%5FGM12044%2Emap%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424344/GSM424344%5FGM12044%5FRPKM%2Etxt%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424347/GSM424347%5FGM12144%2Emap%2Egz
+ftp://ftp.ncbi.nih.gov/pub/geo/DATA/supplementary/samples/GSM424nnn/GSM424347/GSM424347%5FGM12144%5FRPKM%2Etxt%2Egz

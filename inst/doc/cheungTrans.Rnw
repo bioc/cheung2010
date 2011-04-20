@@ -98,6 +98,7 @@ top20inds_B = topKfeats( c2t, 20, fn="inds1_2.ff", feat="geneind", ginds=inds1 )
 date()
 top20scores_B = topKfeats( c2t, 20, fn="scores1_2.ff", feat="score", ginds=inds1 )
 date()
+@
 
 updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
 #
