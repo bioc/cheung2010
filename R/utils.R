@@ -86,8 +86,8 @@ transScores = function(smpack, snpchr="chr1", rhs, K=20, targdir="tsco", geneApp
  inimgr = eqtlTests( sms[ probeId(pnameList[[chrnames[1]]]),], rhs,
       targdir=targdir, runname=paste("tsc_", chrnames[1], sep=""), geneApply=geneApply,
       saveSummaries=FALSE )
- topKinds = topKfeats( inimgr, K=K, fn=paste(targdir, "/tsinds1_1.ff", sep=""), feat="geneind", ginds=genemap[[1]] )
- topKscores = topKfeats( inimgr, K=K, fn=paste(targdir, "/tssco1_1.ff", sep=""), feat="score", ginds=genemap[[1]] )
+ topKinds = topKfeats( inimgr, K=K, fn=paste(targdir, "/", snpchr, "_tsinds1_1.ff", sep=""), feat="geneind", ginds=genemap[[1]] )
+ topKscores = topKfeats( inimgr, K=K, fn=paste(targdir, "/", snpchr, "_tssco1_1.ff", sep=""), feat="score", ginds=genemap[[1]] )
  unlink(filename(inimgr@fflist[[1]]))
  for (j in 2:nchr) {  # get scores for same set of SNPs against a new set of genes (next chrom of genes)
     cat(j)
