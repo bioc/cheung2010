@@ -1,6 +1,6 @@
 
 topKfeats = function(mgr, K, fn="inds1.ff", batchsize=200,
-   feat = c("score", "ind", "geneind"), ffind=1, ginds) {
+   feat = c("score", "ind", "geneind"), ffind=1, ginds ) {
      intests = mgr@fflist[[ffind]]
      if (feat == "score") op = function(x)sort(x, decreasing=TRUE)[1:K]
      else if (feat == "ind") op = function(x)order(x, decreasing=TRUE)[1:K]
@@ -14,44 +14,6 @@ topKfeats = function(mgr, K, fn="inds1.ff", batchsize=200,
      ff(tmp, filename=fn, dim=c(nrow(intests),K), overwrite=TRUE,
        vmode="short")
        }
-
-dotrans = function(spack, snpchr="chr1", K=20, rhs=~sex,
-   geneApply=mclapply, shortfac=10, trprefix="trans", batchsize=200,
-   genechr=1:22) {
- cs = getSS(spack, snpchr)
- require(annotation(cs), character.only=TRUE)
- cenv = get(paste(gsub(".db", "", annotation(cs)), "CHR", sep=""))
- chtok = gsub("chr", "", snpchr)
- gspl = AnnotationDbi:::mget(as.character(genechr), revmap(cenv))
- if (length(gspl)<2) stop("need genechr length at least 2")
- allg = featureNames(cs)
- indset = lapply(gspl, function(x) match(x, allg))
- tname = function() gsub(".*/|.*\\\\", "", tempfile())
- curtarg = tname()
- run1 = eqtlTests( cs[probeId(gspl[[1]]),], rhs, targdir=curtarg, runname="run1",
-   geneApply=geneApply, shortfac=shortfac )
- baseinds = topKfeats( run1, K, fn=paste(trprefix, "baseinds.ff", sep=""), feat="geneind",
-    ginds = indset[[1]] )
- basescores = topKfeats( run1, K, fn=paste(trprefix, "basescores.ff", sep=""), feat="score",
-    ginds = indset[[1]] )
- for (i in 2:length(gspl) ) {
-     cat(i)
-     print(date())
-     currun = tname()
-     nrun = eqtlTests( cs[probeId(gspl[[i]]),], rhs, targdir=curtarg, runname=currun,
-         geneApply=geneApply, shortfac=shortfac )
-     incrinds = topKfeats( run1, K, fn=paste(trprefix, "incrinds.ff", sep=""), feat="geneind",
-        ginds = indset[[i]] )
-     incrscores = topKfeats( run1, K, fn=paste(trprefix, "incrscores.ff", sep=""), feat="score",
-        ginds = indset[[i]] )
-     updateKfeats( basescores, incrscores, baseinds, incrinds, batchsize=batchsize )
-     system(paste("rm -rf ", trprefix, "incrinds.ff", sep=""))
-     system(paste("rm -rf ", trprefix, "incrscores.ff", sep=""))
-     system("rm -rf incrscores.ff")
-     system(paste("rm -rf ", filename(nrun@fflist[[1]])))
-     }
- list(baseinds=baseinds, basescores=basescores)
-}
 
 updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
 #
@@ -71,8 +33,16 @@ updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
    invisible(NULL)
 }
 
+     if (zeroCis) {
+        ol = findOverlaps( snpRanges, geneRanges+radius )
+        matm = matchMatrix( ol )
+        if (nrow(matm) > 0) {
+             intests[ matm ] = 0
+             } 
+        }
+
 transScores = function(smpack, snpchr="chr1", rhs, K=20, targdir="tsco", geneApply=mclapply,
-   chrnames=as.character(1:22)) {
+   chrnames=paste("chr", as.character(1:22)), geneRanges=NULL, snpRanges=NULL, radius=2e6) {
  if (length(chrnames)<2) stop("must have length(chrnames) >= 2")
  theCall = match.call()
  require(GGtools)
@@ -80,12 +50,25 @@ transScores = function(smpack, snpchr="chr1", rhs, K=20, targdir="tsco", geneApp
  guniv = featureNames(sms)
  smanno = gsub(".db", "", annotation(sms))
  require(paste(smanno, ".db", sep=""), character.only=TRUE)
- pnameList = mget(chrnames, revmap(get(paste(smanno, "CHR", sep=""))))
+ clcnames = gsub("chr", chrnames)
+ pnameList = mget(clcnames, revmap(get(paste(smanno, "CHR", sep=""))))
+ names(pnameList) = chrnames
  genemap = lapply( pnameList, function(x) match(x, guniv) )
  nchr = length(chrnames)
  inimgr = eqtlTests( sms[ probeId(pnameList[[chrnames[1]]]),], rhs,
       targdir=targdir, runname=paste("tsc_", chrnames[1], sep=""), geneApply=geneApply,
       saveSummaries=FALSE )
+ if (snpchr == chrnames[1]) {   # kill off scores for genes within radius of SNPs
+        if (is.null(geneRanges) || is.null(snpRanges)) stop("ranges must be supplied to exclude cis tests")
+        dimnt = dimnames(inimgr@fflist[[1]])
+        if (!isTRUE(all.equal(names(geneRanges), dimnt[[2]]))) stop("geneRanges must have names identical to colnames of mgr fflist")
+        if (!isTRUE(all.equal(names(snpRanges), dimnt[[1]]))) stop("snpRanges must have names identical to rownames of mgr fflist")
+        ol = findOverlaps( snpRanges, geneRanges+radius )
+        matm = matchMatrix( ol )
+        if (nrow(matm) > 0) {
+             inimgr@fflist[[1]][ matm ] = 0
+             } 
+        }
  topKinds = topKfeats( inimgr, K=K, fn=paste(targdir, "/", snpchr, "_tsinds1_1.ff", sep=""), feat="geneind", ginds=genemap[[1]] )
  topKscores = topKfeats( inimgr, K=K, fn=paste(targdir, "/", snpchr, "_tssco1_1.ff", sep=""), feat="score", ginds=genemap[[1]] )
  unlink(filename(inimgr@fflist[[1]]))
@@ -93,6 +76,17 @@ transScores = function(smpack, snpchr="chr1", rhs, K=20, targdir="tsco", geneApp
     cat(j)
     nxtmgr = eqtlTests( sms[ probeId(pnameList[[chrnames[j]]]),], rhs,
          targdir=targdir, runname=paste("tsctmp", j, sep=""), geneApply=geneApply, saveSummaries=FALSE )
+    if (snpchr == chrnames[j]) {   # kill off scores for genes within radius of SNPs
+        if (is.null(geneRanges) || is.null(snpRanges)) stop("ranges must be supplied to exclude cis tests")
+        dimnt = dimnames(nxtmgr@fflist[[1]])
+        if (!isTRUE(all.equal(names(geneRanges), dimnt[[2]]))) stop("geneRanges must have names identical to colnames of mgr fflist")
+        if (!isTRUE(all.equal(names(snpRanges), dimnt[[1]]))) stop("snpRanges must have names identical to rownames of mgr fflist")
+        ol = findOverlaps( snpRanges, geneRanges+radius )
+        matm = matchMatrix( ol )
+        if (nrow(matm) > 0) {
+             inimgr@fflist[[1]][ matm ] = 0
+             } 
+        }
     nxtKinds = topKfeats( nxtmgr, K=K, fn=paste(targdir, "indscratch.ff", sep=""), feat="geneind", ginds=genemap[[j]] )
     nxtKscores = topKfeats( nxtmgr, K=K, fn=paste(targdir, "scoscratch.ff", sep=""), feat="score", ginds=genemap[[j]] )
     updateKfeats( topKscores, nxtKscores, topKinds, nxtKinds )
