@@ -48,100 +48,11 @@
 <<getl>>=
 library(cheung2010)
 library(hgfocus.db)
-gspl = mget(as.character(1:22), revmap(hgfocusCHR))
-c1s = getSS("cheung2010", "chr1")
-inds1 = match(gspl[["1"]], featureNames(c1s))
-inds2 = match(gspl[["2"]], featureNames(c1s))
 library(multicore)
-if (!exists("c1t")) {
-if (!file.exists("c1t.rda")) {
-c1t = eqtlTests( c1s[probeId(gspl[["1"]]),], ~sex, targdir="foo", 
-      runname="c1_1",
-      geneApply=mclapply )
-save(c1t,file="c1t.rda")
-      } else load("c1t.rda") 
-    }
-if (!exists("c2t")) {
-if (!file.exists("c2t.rda")) {
-c2t = eqtlTests( c1s[probeId(gspl[["2"]]),], ~sex, targdir="foo", 
-      runname="c1_2",
-      geneApply=mclapply )
-save(c2t,file="c2t.rda")
-      } else load("c2t.rda") 
-    }
-if (!exists("c3t")) {
-if (!file.exists("c3t.rda")) {
-c3t = eqtlTests( c1s[probeId(gspl[["3"]]),], ~sex, targdir="foo", 
-      runname="c1_3",
-      geneApply=mclapply )
-save(c3t,file="c3t.rda")
-      } else load("c3t.rda") 
-    }
+tr1c = transScores("cheung2010", "chr1", ~sex)
+save(tr1c, file="tr1c.rda")
+tr2c = transScores("cheung2010", "chr2", ~sex)
+save(tr2c, file="tr2c.rda")
 @
-
-
-<<d2>>=
-topKfeats = function(mgr, K, fn="inds1.ff", batchsize=200,
-   feat = c("score", "ind", "geneind"), ffind=1, ginds) {
-     intests = mgr@fflist[[ffind]]
-     if (feat == "score") op = function(x)sort(x, decreasing=TRUE)[1:K]
-     else if (feat == "ind") op = function(x)order(x, decreasing=TRUE)[1:K]
-     else if (feat == "geneind") op = function(x)ginds[
-                                        order(x,decreasing=TRUE)[1:K]]
-     else stop("feat not recognized")
-     tmp = ffrowapply( 
-       t(apply(intests[i1:i2,],1,op)), 
-       X=intests, RETURN=TRUE, RETCOL=K, 
-       BATCHSIZE=batchsize)
-     ff(tmp, filename=fn, dim=c(nrow(intests),K), overwrite=TRUE,
-       vmode="short")
-       }
-date()
-top20inds = topKfeats( c1t, 20, fn="inds1_1.ff", feat="geneind", ginds=inds1 )
-date()
-top20scores = topKfeats( c1t, 20, fn="scores1_1.ff", feat="score", ginds=inds1 )
-date()
-date()
-top20inds_B = topKfeats( c2t, 20, fn="inds1_2.ff", feat="geneind", ginds=inds1 )
-date()
-top20scores_B = topKfeats( c2t, 20, fn="scores1_2.ff", feat="score", ginds=inds1 )
-date()
-top20inds_C = topKfeats( c3t, 20, fn="inds1_3.ff", feat="geneind", ginds=inds1 )
-top20scores_C = topKfeats( c3t, 20, fn="scores1_3.ff", feat="score", ginds=inds1 )
-@
-
-updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
-#
-# will overwrite sco1, ind1 with the improvements available in sco2, ind2
-   snchunk = chunk(1, nrow(sco1), by=batchsize)
-   K=ncol(sco1)
-   for (i in 1:length(snchunk)) {
-      i1 = snchunk[[i]][1]
-      i2 = snchunk[[i]][2]
-      scos = cbind(sco1[i1:i2,], sco2[i1:i2,])
-      ginds = cbind(ind1[i1:i2,], ind2[i1:i2,])
-      rowwiseExtract = function(x,y) t(sapply(1:nrow(x), function(row) x[row,][y[row,]]))
-      chind = t(apply(scos, 1, function(x)order(x,decreasing=TRUE)))
-      sco1[i1:i2,] = rowwiseExtract( scos, chind[,1:K] )
-      ind1[i1:i2,] = rowwiseExtract( ginds, chind[,1:K] )
-      }
-   NULL
-}
-
-top20scores[1:5,1:10]
-top20inds[1:5,1:10]
-
-date()
-updateKfeats( top20scores, top20scores_B, top20inds, top20inds_B )
-date()
-top20scores[1:5,1:10]
-top20inds[1:5,1:10]
-updateKfeats( top20scores, top20scores_C, top20inds, top20inds_C )
-date()
-top20scores[1:5,1:10]
-top20inds[1:5,1:10]
-date()
-@
-
 
 \end{document}
