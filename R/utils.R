@@ -90,6 +90,29 @@ updateKfeats = function( sco1, sco2, ind1, ind2, batchsize=200 ) {
    call=theCall)
 }
 
+cisZero = function(mgr, snpRanges, geneRanges, radius) {
+        dimnt = dimnames(mgr@fflist[[1]])
+        oks = gsub("rs", "", dimnt[[1]])
+        okg = dimnt[[2]]
+        srids = values(snpRanges)$RefSNP_id
+        if (!isTRUE(all(okg %in% names(geneRanges))))  {
+            warning("geneRanges does not include names/ranges for all colnames of mgr fflist")
+            okg = intersect( okg, names(geneRanges))
+            }
+        if (!isTRUE(all(oks %in% srids)))  {
+            warning("snpRanges does not include names/ranges for all rownames of mgr fflist")
+ # match and numeric indexing much more efficient than names for large objects
+            oks = match(oks, srids, nomatch=0)
+            if (length(oks) == 0) stop("snpRanges does not include any snps in mgr")
+            }
+ # can't use zero indices in subsetting GRanges...
+        ol = findOverlaps(snpRanges[oks[oks>0]], geneRanges[okg] + 
+            radius)
+        matm = matchMatrix(ol)
+        if (nrow(matm) > 0) {
+            mgr@fflist[[1]][matm] = 0
+        }
+    }
 
 transScores = function (smpack, snpchr = "chr1", rhs, K = 20, targdir = "tsco", 
     geneApply = mclapply, chrnames = paste("chr", as.character(1:22), sep=""), 
@@ -118,23 +141,7 @@ transScores = function (smpack, snpchr = "chr1", rhs, K = 20, targdir = "tsco",
     if (snpchr == chrnames[1]) {
         if (is.null(geneRanges) || is.null(snpRanges)) 
             stop("ranges must be supplied to exclude cis tests")
-        dimnt = dimnames(inimgr@fflist[[1]])
-        oks = dimnt[[1]]
-        okg = dimnt[[2]]
-        if (!isTRUE(all(dimnt[[2]] %in% names(geneRanges))))  {
-            warning("geneRanges does not include names/ranges for all colnames of mgr fflist")
-            okg = intersect( okg, names(geneRanges))
-            }
-        if (!isTRUE(all(dimnt[[1]] %in% names(snpRanges))))  {
-            warning("snpRanges does not include names/ranges for all rownames of mgr fflist")
-            oks = intersect(dimnt[[1]], names(snpRanges))
-            }
-        ol = findOverlaps(snpRanges[oks], geneRanges[okg] + 
-            radius)
-        matm = matchMatrix(ol)
-        if (nrow(matm) > 0) {
-            inimgr@fflist[[1]][matm] = 0
-        }
+        cisZero(inimgr, snpRanges, geneRanges, radius)
     }
     topKinds = topKfeats(inimgr, K = K, fn = paste(targdir, "/", 
         snpchr, "_tsinds1_1.ff", sep = ""), feat = "geneind", 
@@ -151,24 +158,8 @@ transScores = function (smpack, snpchr = "chr1", rhs, K = 20, targdir = "tsco",
         if (snpchr == chrnames[j]) {
             if (is.null(geneRanges) || is.null(snpRanges)) 
                 stop("ranges must be supplied to exclude cis tests")
-            dimnt = dimnames(nxtmgr@fflist[[1]])
-            oks = dimnt[[1]]
-            okg = dimnt[[2]]
-            if (!isTRUE(all(dimnt[[2]] %in% names(geneRanges)))) {
-                warning("geneRanges does not include names/ranges for all colnames of mgr fflist")
-                okg = intersect( okg, names(geneRanges))
-                }
-            if (!isTRUE(all(dimnt[[1]] %in% names(snpRanges)))) {
-                stop("snpRanges does not include names/ranges for all rownames of mgr fflist")
-                oks = intersect(dimnt[[1]], names(snpRanges))
-                }
-            ol = findOverlaps(snpRanges[oks], geneRanges[okg] + 
-                radius)
-            matm = matchMatrix(ol)
-            if (nrow(matm) > 0) {
-                inimgr@fflist[[1]][matm] = 0
+            cisZero(nxtmgr, snpRanges, geneRanges, radius)
             }
-        }
         nxtKinds = topKfeats(nxtmgr, K = K, fn = paste(targdir, 
             "indscratch.ff", sep = ""), feat = "geneind", ginds = genemap[[j]])
         nxtKscores = topKfeats(nxtmgr, K = K, fn = paste(targdir, 
