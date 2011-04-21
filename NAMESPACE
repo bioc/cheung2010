@@ -1,3 +1,3 @@
 
 importFrom(AnnotationDbi, mget)
-export(updateKfeats, dotrans, topKfeats, transScores)
+export(updateKfeats, topKfeats, transScores)

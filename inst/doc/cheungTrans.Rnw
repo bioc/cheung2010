@@ -5,7 +5,7 @@
 %
 
 %\VignetteIndexEntry{}
-%\VignetteDepends{}
+%\VignetteDepends{SNPlocs.Hsapiens.dbSNP.20101109, hgfocus.db, GenomicRanges, GGtools}
 %\VignetteKeywords{}
 %\VignettePackage{}
 
@@ -48,10 +48,37 @@
 <<getl>>=
 library(cheung2010)
 library(hgfocus.db)
+library(GenomicRanges)
+allst = as.list(hgfocusCHRLOC)
+allen = as.list(hgfocusCHRLOCEND)
+pchrs = sapply(allst, function(x)names(x)[1])
+bad = which(sapply(pchrs,length)==0)
+if (length(bad)>0) {
+pchrs = pchrs[-bad]
+pchrs = sapply(pchrs, function(x)x)
+pchrs = paste("chr", pchrs, sep="")
+allst = allst[-bad]
+allen = allen[-bad]
+}
+st = sapply(allst, function(x) abs(x)[1])
+en = sapply(allen, function(x) abs(x)[1])
+gra = GRanges(seqnames=pchrs, IRanges(st,en))
+names(gra) = names(allst)
+gra = split(gra, seqnames(gra))
+
+library(SNPlocs.Hsapiens.dbSNP.20101109)
+c1s = getSNPlocs("ch1", as.GRanges=TRUE)
+seqlevels(c1s) = gsub("ch", "chr", seqlevels(c1s))
+names(c1s) = paste("rs", elementMetadata(c1s)$RefSNP_id, sep="")
+c2s = getSNPlocs("ch2", as.GRanges=TRUE)
+seqlevels(c2s) = gsub("ch", "chr", seqlevels(c2s))
+names(c2s) = paste("rs", elementMetadata(c2s)$RefSNP_id, sep="")
+
+
 library(multicore)
-tr1c = transScores("cheung2010", "chr1", ~sex)
+tr1c = transScores("cheung2010", "chr1", ~sex, snpRanges=c1s, geneRanges=gra[["chr1"]])
 save(tr1c, file="tr1c.rda")
-tr2c = transScores("cheung2010", "chr2", ~sex)
+tr2c = transScores("cheung2010", "chr2", ~sex, snpRanges=c2s, geneRanges=gra[["chr2"]])
 save(tr2c, file="tr2c.rda")
 @
 
