@@ -5,7 +5,7 @@
 %
 
 %\VignetteIndexEntry{}
-%\VignetteDepends{SNPlocs.Hsapiens.dbSNP.20101109, hgfocus.db, GenomicRanges, GGtools}
+%\VignetteDepends{SNPlocs.Hsapiens.dbSNP.20100427, hgfocus.db, GenomicRanges, GGtools}
 %\VignetteKeywords{}
 %\VignettePackage{}
 
@@ -71,7 +71,7 @@ lkg = getSS("cheung2010", "chr5")
 fn5 = featureNames(lkg)
 gra = lapply(gra, function(x)x[ intersect(names(x), fn5) ])
 
-library(SNPlocs.Hsapiens.dbSNP.20101109)
+library(SNPlocs.Hsapiens.dbSNP.20100427)
 if (file.exists("c1s.rda")) load("c1s.rda")
 if (!exists("c1s")) c1s = getSNPlocs("ch1", as.GRanges=TRUE)
 if ("ch1" %in% seqlevels(c1s)) seqlevels(c1s) = gsub("ch", "chr", seqlevels(c1s))
@@ -92,18 +92,46 @@ if (!exists("c4s")) c4s = getSNPlocs("ch4", as.GRanges=TRUE)
 if ("ch4" %in% seqlevels(c4s)) seqlevels(c4s) = gsub("ch", "chr", seqlevels(c4s))
 if (!file.exists("c4s.rda")) save(c4s,file="c4s.rda")
 
+if (!exists("c17s") && file.exists("c17s.rda")) load("c17s.rda")
+if (!exists("c17s")) c17s = getSNPlocs("ch17", as.GRanges=TRUE)
+if ("ch17" %in% seqlevels(c17s)) seqlevels(c17s) = gsub("ch", "chr", seqlevels(c17s))
+if (!file.exists("c17s.rda")) save(c17s,file="c17s.rda")
+
+if (!exists("c19s") && file.exists("c19s.rda")) load("c19s.rda")
+if (!exists("c19s")) c19s = getSNPlocs("ch19", as.GRanges=TRUE)
+if ("ch19" %in% seqlevels(c19s)) seqlevels(c19s) = gsub("ch", "chr", seqlevels(c19s))
+if (!file.exists("c19s.rda")) save(c19s,file="c19s.rda")
+
 library(multicore)
 #system("rm -rf tsco")
 #tr1c = transScores("cheung2010", "chr1", ~sex, snpRanges=c1s, geneRanges=gra[["chr1"]])
 #save(tr1c, file="tr1c.rda")
 #tr2c = transScores("cheung2010", "chr2", ~sex, snpRanges=c2s, geneRanges=gra[["chr2"]])
 #save(tr2c, file="tr2c.rda")
-gc()
-tr3c = transScores("cheung2010", "chr3", ~sex, snpRanges=c3s, geneRanges=gra[["chr3"]])
-save(tr3c, file="tr3c.rda")
-gc()
-tr4c = transScores("cheung2010", "chr4", ~sex, snpRanges=c4s, geneRanges=gra[["chr4"]])
-save(tr4c, file="tr4c.rda")
+#gc()
+#tr3c = transScores("cheung2010", "chr3", ~sex, snpRanges=c3s, geneRanges=gra[["chr3"]])
+#save(tr3c, file="tr3c.rda")
+#gc()
+#tr4c = transScores("cheung2010", "chr4", ~sex, snpRanges=c4s, geneRanges=gra[["chr4"]])
+#save(tr4c, file="tr4c.rda")
 @
+We use the probes on chr17 identified as harboring trans regulators by Cheung.
+<<dodo>>=
+pr17 = structure(c("209165_at", "203654_s_at", "203367_at", "201508_at", 
+"218676_s_at", "208982_at", "202148_s_at", "214552_s_at", "214299_at", 
+"219282_s_at"), .Names = c("AATF", "COIL", "DUSP14", "IGFBP4", 
+"PCTP", "PECAM1", "PYCR1", "RABEP1", "TOP3A", "TRPV2"))
+options(verbose=TRUE)
+mgrsave = list()
+for (i in 1:22) {
+ cat(i)
+ cc17 = getSS("cheung2010", paste("chr", i, sep=""), probesToKeep=pr17)
+ mgrsave[[i]] = eqtlTests(cc17, ~sex, targdir="cc17", runname=paste("cc17", i, sep=""))
+ rm(cc17)
+ gc()
+ }
+save(mgrsave, file="mgrsave.rda")
+@
+
 
 \end{document}
