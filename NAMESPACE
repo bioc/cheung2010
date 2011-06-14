@@ -1,3 +1,4 @@
 
 #importFrom(AnnotationDbi, mget)
 #export(updateKfeats, topKfeats, transScores)
+importFrom(Biobase, selectSome)

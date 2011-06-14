@@ -117,20 +117,42 @@ library(multicore)
 @
 We use the probes on chr17 identified as harboring trans regulators by Cheung.
 <<dodo>>=
+tempfolder = function ()
+{
+    z = tempfile()
+    system(paste("mkdir", z))
+    z
+}
+obsfold = tempfolder()
+permfold = tempfolder()
 pr17 = structure(c("209165_at", "203654_s_at", "203367_at", "201508_at", 
 "218676_s_at", "208982_at", "202148_s_at", "214552_s_at", "214299_at", 
 "219282_s_at"), .Names = c("AATF", "COIL", "DUSP14", "IGFBP4", 
 "PCTP", "PECAM1", "PYCR1", "RABEP1", "TOP3A", "TRPV2"))
 options(verbose=TRUE)
-mgrsave = list()
-for (i in 1:22) {
- cat(i)
- cc17 = getSS("cheung2010", paste("chr", i, sep=""), probesToKeep=pr17)
- mgrsave[[i]] = eqtlTests(cc17, ~sex, targdir="cc17", runname=paste("cc17", i, sep=""))
- rm(cc17)
- gc()
- }
-save(mgrsave, file="mgrsave.rda")
+if (!exists("mgrsave")) {
+ mgrsave = list()
+ for (i in 1:22) {
+  cat(i)
+  cc17 = getSS("cheung2010", paste("chr", i, sep=""), probesToKeep=pr17)
+  mgrsave[[i]] = eqtlTests(cc17, ~sex, targdir=obsfold, runname=paste("cc17", i, sep=""))
+  rm(cc17)
+  gc()
+  }
+ save(mgrsave, file="mgrsave.rda")
+}
+set.seed(12345)
+if (!exists("mgrsave_perm")) {
+ mgrsave_perm = list()
+ for (i in 1:22) {
+  cat(i)
+  cc17 = getSS("cheung2010", paste("chr", i, sep=""), probesToKeep=pr17, wrapperEndo=permEx)
+  mgrsave_perm[[i]] = eqtlTests(cc17, ~sex, targdir=permfold, runname=paste("pcc17", i, sep=""))
+  rm(cc17)
+  gc()
+  }
+ save(mgrsave_perm, file="mgrsave_perm.rda")
+}
 @
 
 
