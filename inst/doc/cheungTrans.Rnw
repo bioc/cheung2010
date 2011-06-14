@@ -4,7 +4,7 @@
 % likely to be overwritten.
 %
 
-%\VignetteIndexEntry{}
+%\VignetteIndexEntry{cheungTrans: checking trans eQTL with hgfocus arrays}
 %\VignetteDepends{SNPlocs.Hsapiens.dbSNP.20100427, hgfocus.db, GenomicRanges, GGtools}
 %\VignetteKeywords{}
 %\VignettePackage{}
