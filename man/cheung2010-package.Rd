@@ -2,6 +2,8 @@
 \alias{cheung2010-package}
 \alias{cheung2010}
 \alias{ex}
+\alias{cheung_eset}
+\alias{cheung_eset_notrunc}
 \docType{package}
 \title{
 resources for genetics of gene expression based on Cheung et al 2010
@@ -31,6 +33,8 @@ Index:
 \preformatted{
 cheung2010locs          cheung2010locs gives locations for HapMap phase
                         3 SNPs for CEPH CEU
+cheung_eset		from RECOUNT web resource for RNA-seq http://bowtie-bio.sourceforge.net/recount/
+cheung_eset_notrunc	from RECOUNT web resource for RNA-seq
 }
 
 Further information is available in the following vignettes:
