@@ -102,7 +102,7 @@ if (!exists("c19s")) c19s = getSNPlocs("ch19", as.GRanges=TRUE)
 if ("ch19" %in% seqlevels(c19s)) seqlevels(c19s) = gsub("ch", "chr", seqlevels(c19s))
 if (!file.exists("c19s.rda")) save(c19s,file="c19s.rda")
 
-library(multicore)
+#if ("multicore" %in% installed.packages()[,1]) library(multicore)
 #system("rm -rf tsco")
 #tr1c = transScores("cheung2010", "chr1", ~sex, snpRanges=c1s, geneRanges=gra[["chr1"]])
 #save(tr1c, file="tr1c.rda")
