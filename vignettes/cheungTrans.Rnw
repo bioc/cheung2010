@@ -5,7 +5,7 @@
 %
 
 %\VignetteIndexEntry{cheungTrans: checking trans eQTL with hgfocus arrays}
-%\VignetteDepends{SNPlocs.Hsapiens.dbSNP.20100427, hgfocus.db, GenomicRanges, GGtools}
+%\VignetteDepends{SNPlocs.Hsapiens.dbSNP.20120608, hgfocus.db, GenomicRanges, GGtools}
 %\VignetteKeywords{}
 %\VignettePackage{}
 
@@ -71,7 +71,7 @@ lkg = getSS("cheung2010", "chr5")
 fn5 = featureNames(lkg)
 gra = lapply(gra, function(x)x[ intersect(names(x), fn5) ])
 
-library(SNPlocs.Hsapiens.dbSNP.20100427)
+library(snplocsDefault(), character.only=TRUE)
 if (!exists("c1s") && file.exists("c1s.rda")) load("c1s.rda")
 if (!exists("c1s")) c1s = getSNPlocs("ch1", as.GRanges=TRUE)
 if ("ch1" %in% seqlevels(c1s)) seqlevels(c1s) = gsub("ch", "chr", seqlevels(c1s))
@@ -130,12 +130,30 @@ pr17 = structure(c("209165_at", "203654_s_at", "203367_at", "201508_at",
 "219282_s_at"), .Names = c("AATF", "COIL", "DUSP14", "IGFBP4", 
 "PCTP", "PECAM1", "PYCR1", "RABEP1", "TOP3A", "TRPV2"))
 options(verbose=TRUE)
+dropNAs = function (x)
+{
+    if (!(is(x, "smlSet"))) 
+        stop("works only for smlSet instances")
+    sml <- x@smlEnv$smList
+    maf = snpStats::col.summary(sml[[1]])[, "MAF", drop = FALSE]
+    allrs = rownames(maf)
+    curok = which(!is.na(maf))
+    rm(maf)
+    if (length(curok) == 0) 
+        stop("dropNAs eliminates all SNP on a chromosome, cannot proceed")
+    if (length(curok) != length(allrs)) 
+        x@smlEnv$smList[[1]] = x@smlEnv$smList[[1]][, curok]
+    rm(allrs)
+    x
+}
+
 if (!exists("mgrsave")) {
  mgrsave = list()
  for (i in 1:22) {
   cat(i)
-  cc17 = getSS("cheung2010", paste("chr", i, sep=""), probesToKeep=pr17)
-  mgrsave[[i]] = eqtlTests(cc17, ~sex, targdir=obsfold, runname=paste("cc17", i, sep=""))
+  cc17 = dropNAs(getSS("cheung2010", paste("chr", i, sep=""), probesToKeep=pr17))
+  mgrsave[[i]] = eqtlTests(cc17, ~sex, targdir=obsfold, 
+     runname=paste("cc17", i, sep=""))
   rm(cc17)
   gc()
   }
@@ -146,7 +164,8 @@ if (!exists("mgrsave_perm")) {
  mgrsave_perm = list()
  for (i in 1:22) {
   cat(i)
-  cc17 = getSS("cheung2010", paste("chr", i, sep=""), probesToKeep=pr17, wrapperEndo=permEx)
+  cc17 = dropNAs(getSS("cheung2010", paste("chr", i, sep=""), 
+              probesToKeep=pr17, wrapperEndo=permEx))
   mgrsave_perm[[i]] = eqtlTests(cc17, ~sex, targdir=permfold, runname=paste("pcc17", i, sep=""))
   rm(cc17)
   gc()
