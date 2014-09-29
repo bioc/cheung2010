@@ -32,7 +32,7 @@ Built: \tab R 2.14.0; ; 2011-06-13 16:19:18 UTC; unix\cr
 Index:
 \preformatted{
 cheung2010locs          cheung2010locs gives locations for HapMap phase
-                        3 SNPs for CEPH CEU
+                        3 SNPs for CEPH CEU; addresses are for hg18
 cheung_eset		from RECOUNT web resource for RNA-seq http://bowtie-bio.sourceforge.net/recount/
 cheung_eset_notrunc	from RECOUNT web resource for RNA-seq
 }

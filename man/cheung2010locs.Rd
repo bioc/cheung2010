@@ -6,6 +6,9 @@ cheung2010locs gives locations for HapMap phase 3 SNPs for CEPH CEU
 }
 \description{
 cheung2010locs gives locations for HapMap phase 3 SNPs for CEPH CEU
+
+Note: updated 29 Sept 2014 to deal with new Seqinfo structure, making
+explicit the reference to hg18.
 }
 \usage{data(cheung2010locs)}
 \format{
