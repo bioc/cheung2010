@@ -9,6 +9,10 @@ cheung2010locs gives locations for HapMap phase 3 SNPs for CEPH CEU
 
 Note: updated 29 Sept 2014 to deal with new Seqinfo structure, making
 explicit the reference to hg18.
+
+The cheung2010locs seems no longer necessary (29 Sept 2014) since
+snplocsDefault() is targeting the 20120608 SNPlocs package, which
+would be in sync with the contemporaneous hgfocus.db package.
 }
 \usage{data(cheung2010locs)}
 \format{
