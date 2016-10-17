@@ -1,6 +1,6 @@
 Package: cheung2010
 Title: resources for genetics of gene expression based on Cheung et al 2010
-Version: 0.11.0
+Version: 0.12.0
 Author: Vince Carey <stvjc@channing.harvard.edu>
 Description: Data resources related to the PLoS Biology paper Polymorphic 
 	Cis- and Trans-Regulation of Human Gene 
