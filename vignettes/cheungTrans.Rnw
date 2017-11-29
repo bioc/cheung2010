@@ -45,7 +45,12 @@
 \author{VJ Carey}
 \maketitle
 
-<<getl>>=
+This code is based on a SNPlocs paradigm that has changed.
+eval=FALSE has been set for all chunks.  Revisions will
+follow when time permits; contact stvjc at channing.harvard.edu
+if accelerated changes are desired.
+
+<<getl,eval=FALSE>>=
 options(error=recover)
 #library(chfive40)
 library(cheung2010)
@@ -125,7 +130,7 @@ if (!file.exists("c19s.rda")) save(c19s,file="c19s.rda")
 #save(tr4c, file="tr4c.rda")
 @
 We use the probes on chr17 identified as harboring trans regulators by Cheung.
-<<dodo>>=
+<<dod,eval=FALSE>>=
 tempfolder = function ()
 {
     z = tempfile()
