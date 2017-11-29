@@ -9,7 +9,7 @@ Description: Data resources related to the PLoS Biology paper Polymorphic
 	0.0.22+ includes cheung_eset... from Leek et al RECOUNT myrna output
 Depends: R (>= 2.13.0), Biobase, GGtools, GenomicRanges, hgfocus.db
 Imports: AnnotationDbi
-Suggests: SNPlocs.Hsapiens.dbSNP.20120608
+Suggests: SNPlocs.Hsapiens.dbSNP144.GRCh37
 Enhances: parallel
 Maintainer: Vince Carey <stvjc@channing.harvard.edu>
 License: Artistic-2.0

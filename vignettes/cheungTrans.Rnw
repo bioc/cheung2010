@@ -5,7 +5,7 @@
 %
 
 %\VignetteIndexEntry{cheungTrans: checking trans eQTL with hgfocus arrays}
-%\VignetteDepends{SNPlocs.Hsapiens.dbSNP.20120608, hgfocus.db, GenomicRanges, GGtools}
+%\VignetteDepends{SNPlocs.Hsapiens.dbSNP144.GRCh37, hgfocus.db, GenomicRanges, GGtools}
 %\VignetteKeywords{}
 %\VignettePackage{}
 
@@ -70,8 +70,17 @@ gra = split(gra, seqnames(gra))
 lkg = getSS("cheung2010", "chr5")
 fn5 = featureNames(lkg)
 gra = lapply(gra, function(x)x[ intersect(names(x), fn5) ])
+getSNPlocs = function(chr, as.GRanges=TRUE) {
+   require("SNPlocs.Hsapiens.dbSNP144.GRCh37", character.only=TRUE)
+   sl = SNPlocs.Hsapiens.dbSNP144.GRCh37
+   chr = gsub("ch", "", chr)
+   ss = snpsBySeqname(sl, chr)
+   if (as.GRanges) return(as(ss, "GRanges"))
+   as.data.frame(ss)
+}
 
-library(snplocsDefault(), character.only=TRUE)
+
+#library(snplocsDefault(), character.only=TRUE)
 if (!exists("c1s") && file.exists("c1s.rda")) load("c1s.rda")
 if (!exists("c1s")) c1s = getSNPlocs("ch1", as.GRanges=TRUE)
 if ("ch1" %in% seqlevels(c1s)) seqlevels(c1s) = gsub("ch", "chr", seqlevels(c1s))
